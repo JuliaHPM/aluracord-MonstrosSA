@@ -1,35 +1,8 @@
+import React from "react";
 import appConfig from "../config.json"
 import { Box, Button, Text, TextField, Image } from '@skynexui/components'
-
-function GlobalStyle() {
-
-  return (
-    <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      /* App fit Height */ 
-      html, body, #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */ 
-    `}</style>
-  )
-}
+import { useState } from "react";
+import { useRouter } from "next/router"
 
 function Titulo(props) {
   const Tag = props.tag || h1;
@@ -48,23 +21,12 @@ function Titulo(props) {
   )
 }
 
-// function HomePage() {
-//     return (
-//         <div>
-//             <GlobalStyle/>
-//             <Title tag="h1">Olá dev</Title>
-//             <h2>Discord - Alura </h2>
-//         </div>
-//     )
-
-// }
-
 export default function PaginaInicial() {
-  const username = 'juliahpm';
+  const [username, setUsername] = useState('juliahpm');
+  const router = useRouter();
 
   return (
-    <>
-      <GlobalStyle />
+    <> 
       <Box
         styleSheet={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -95,6 +57,10 @@ export default function PaginaInicial() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
             }}
+            onSubmit={function(event){
+              event.preventDefault();
+              router.push("/chat");
+            }}
           >
             <Titulo tag="h2">Olá monstro!</Titulo>
             <Text variant="body3" styleSheet={{ marginBottom: '32px', color: appConfig.theme.colors.neutrals[300] }}>
@@ -102,6 +68,7 @@ export default function PaginaInicial() {
             </Text>
 
             <TextField
+            defaultValue={username}
               fullWidth
               textFieldColors={{
                 neutral: {
@@ -110,6 +77,10 @@ export default function PaginaInicial() {
                   mainColorHighlight: appConfig.theme.colors.primary[500],
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
+              }} 
+              onChange={function(event){
+                const valor = event.target.value;
+                setUsername(valor);
               }}
             />
             <Button

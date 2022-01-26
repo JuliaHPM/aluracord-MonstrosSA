@@ -1,7 +1,8 @@
 # Aluracord Montros S.A.
 Código feito na Imersão React realizada pela Alura de 24 a 28 de janeiro de 2022.
 
-[Acessar aplicação com hospedagem na Vercel](https://aluracord-monstros-sa-kjgp9tuz9-juliahpm.vercel.app)
+[Acessar aplicação com hospedagem na Vercel](https://aluracord-monstros-sa.vercel.app/)
+
 
 ### Dependências
 - Next.js 
@@ -18,7 +19,7 @@ Criamos o layout de uma página inicial utilizando componentes do React e o skyn
 Tópicos: useState, useRouter e eventos (onChange e onSubmit). 
 
 ## Aula 3 - 26/01
-Utilizamos arrays, objetos e map para criar o chat ofline.
+Utilizamos arrays, objetos e map para criar o chat offline.
 
 ![Image](./img/TelaChat.png)
 

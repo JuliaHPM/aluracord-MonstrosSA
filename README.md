@@ -11,9 +11,12 @@ Instalações e configurações iniciais.
 Criamos o layout de uma página inicial utilizando componentes do React e o skynexui para estilização.
 
 ## Aula 2
-Tópicos: useState, useRouter, eventos (onChange e onSubmit). 
+Tópicos: useState, useRouter e eventos (onChange e onSubmit). 
 
-### Run
+## Aula 3
+Utilizamos arrays, objetos e map para criar o chat ofline.
+
+#### Run
 ```sh
 npm run dev
 ```

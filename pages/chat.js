@@ -1,21 +1,46 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwODUxNiwiZXhwIjoxOTU4ODg0NTE2fQ.3tTR-qYcgg0A9UdNdhfLJYCooEGAP4xoY2QLKgsFGXE";
+const SUPABASE_URL = "https://drhdbangmldvugyamovy.supabase.co";
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = useState();
     const [listaMensagens, setListaMensagens] = useState([]);
 
+    useEffect(() => {
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                // console.log('dados: ', data);
+                setListaMensagens(data)
+            });
+    }, []);
+
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaMensagens.length + 1,
-            de: 'vanessametonini',
+            // id: listaMensagens.length + 1,
+            de: 'juliahpm', //vanessametonini //usuário logado
             texto: novaMensagem
         };
-        setListaMensagens([
-            mensagem,
-            ...listaMensagens
-        ]);
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                setListaMensagens([
+                    data[0],
+                    ...listaMensagens
+                ]);
+            })
+
         setMensagem('');
     }
 
@@ -63,7 +88,7 @@ export default function ChatPage() {
                         )
                     })} */}
 
-                    <MessageList mensagens={listaMensagens} />
+                    <MessageList mensagens={listaMensagens} setListaMensagens={setListaMensagens} />
 
                     <Box
                         as="form"
@@ -101,7 +126,7 @@ export default function ChatPage() {
                             }}
                         />
                         <Button
-                            // type='submit'
+                            title='Enviar'
                             iconName='FaPaperPlane'
                             buttonColors={{
                                 contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -112,7 +137,7 @@ export default function ChatPage() {
                             styleSheet={{
                                 // height: '0%'
                             }}
-                            onClick={()=>{handleNovaMensagem(mensagem)} }
+                            onClick={() => { handleNovaMensagem(mensagem) }}
                         />
                     </Box>
                 </Box>
@@ -139,8 +164,26 @@ function Header() {
     )
 }
 
-function MessageList(props) {
+function MessageList({ mensagens, setListaMensagens }) { //props.mensagens
     // console.log('MessageList', props.mensagens);
+
+    function excluirMensagem({ id }) {
+        supabaseClient
+            .from('mensagens')
+            .delete()
+            .match({ id: id })
+            .then(({ data }) => {
+                //novo array sem a mensagem que foi apagada:
+                const listaMensagensRestantes = mensagens.filter((mensagem) => mensagem.id !== data[0].id);
+                // console.log("listaMensagensRestantes: ", listaMensagensRestantes)
+
+                setListaMensagens(
+                    listaMensagensRestantes
+                );
+            })
+    }
+
+
     return (
         <Box
             tag="ul"
@@ -155,7 +198,7 @@ function MessageList(props) {
             }}
         >
 
-            {props.mensagens?.map((mensagem) => {
+            {mensagens?.map((mensagem) => {
                 return (
                     <Text
                         key={mensagem.id}
@@ -168,36 +211,54 @@ function MessageList(props) {
                                 backgroundColor: appConfig.theme.colors.neutrals[700],
                             }
                         }}
+
                     >
                         <Box
                             styleSheet={{
                                 marginBottom: '8px',
                             }}
                         >
-                            <Image
+                            <Box
                                 styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '50%',
-                                    display: 'inline-block',
-                                    marginRight: '8px',
-                                }}
-                                src={`https://github.com/${mensagem.de}.png`}
-                                
-                            />
-                            <Text tag="strong">
-                                {mensagem.de}
-                            </Text>
-                            <Text
-                                styleSheet={{
-                                    fontSize: '10px',
-                                    marginLeft: '8px',
-                                    color: appConfig.theme.colors.neutrals[300],
-                                }}
-                                tag="span"
-                            >
-                                {(new Date().toLocaleDateString())}
-                            </Text>
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    flex: 1,
+                                }}>
+                                <Box>
+                                    <Image
+                                        styleSheet={{
+                                            width: '20px',
+                                            height: '20px',
+                                            borderRadius: '50%',
+                                            display: 'inline-block',
+                                            marginRight: '8px',
+                                        }}
+                                        src={`https://github.com/${mensagem.de}.png`}
+
+                                    />
+                                    <Text tag="strong">
+                                        {mensagem.de}
+                                    </Text>
+                                    <Text
+                                        styleSheet={{
+                                            fontSize: '10px',
+                                            marginLeft: '8px',
+                                            color: appConfig.theme.colors.neutrals[300],
+                                        }}
+                                        tag="span"
+                                    >
+                                        {(new Date().toLocaleDateString())}
+                                    </Text>
+                                </Box>
+                                <Button
+                                    variant='tertiary'
+                                    colorVariant='dark'
+                                    rounded='full'
+                                    title='Excluir'
+                                    label='x'
+                                    onClick={() => { excluirMensagem(mensagem) }}
+                                />
+                            </Box>
                         </Box>
                         {mensagem.texto}
                     </Text>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import appConfig from "../config.json"
 import { Box, Button, Text, TextField, Image } from '@skynexui/components'
 import { useState } from "react";
@@ -21,12 +21,50 @@ function Titulo(props) {
   )
 }
 
+
+
 export default function PaginaInicial() {
-  const [username, setUsername] = useState('juliahpm');
+  const [username, setUsername] = useState('juliahpm'),
+    [userNotFound, setUserNotFound] = useState(false),
+    [bioGit, setBioGit] = useState(),
+    [nameGit, setNameGit] = useState(),
+    [repoGit, setRepoGit] = useState(),
+    [followersGit, setFollowersGit] = useState(),
+    [followingGit, setFollowingGit] = useState();
+
   const router = useRouter();
 
+  useEffect(() => {
+    fetch(`https://api.github.com/users/${username}`)
+      .then(async (res) => {
+      const dadosGit = await res.json();
+
+      if(dadosGit.message === "Not Found"){
+        setUserNotFound(true);
+        setBioGit('');
+        setNameGit('');
+        setRepoGit('');
+        setFollowersGit('');
+        setFollowingGit();
+      }else{
+        setUserNotFound(false);
+      
+        setBioGit(dadosGit.bio);
+        setNameGit(dadosGit.name);
+        setRepoGit(dadosGit.public_repos);
+        setFollowersGit(dadosGit.followers);
+        setFollowingGit(dadosGit.following);
+
+      }
+        
+      })
+  }, [username])
+
+  // const bioGit = dadosGit.bio;
+  // console.log(bioGit);
+
   return (
-    <> 
+    <>
       <Box
         styleSheet={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -57,7 +95,7 @@ export default function PaginaInicial() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
             }}
-            onSubmit={function(event){
+            onSubmit={function (event) {
               event.preventDefault();
               router.push("/chat");
             }}
@@ -68,7 +106,7 @@ export default function PaginaInicial() {
             </Text>
 
             <TextField
-            defaultValue={username}
+              defaultValue={username}
               fullWidth
               textFieldColors={{
                 neutral: {
@@ -77,8 +115,8 @@ export default function PaginaInicial() {
                   mainColorHighlight: appConfig.theme.colors.primary[500],
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
-              }} 
-              onChange={function(event){
+              }}
+              onChange={function (event) {
                 const valor = event.target.value;
                 setUsername(valor);
               }}
@@ -104,11 +142,11 @@ export default function PaginaInicial() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              maxWidth: '200px',
+              maxWidth: '210px',
               padding: '16px',
               backgroundColor: appConfig.theme.colors.neutrals[800],
-              border: '1px solid',
-              borderColor: appConfig.theme.colors.neutrals[999],
+              // border: '1px solid',
+              // borderColor: appConfig.theme.colors.neutrals[999],
               borderRadius: '10px',
               flex: 1,
               minHeight: '240px',
@@ -121,17 +159,147 @@ export default function PaginaInicial() {
               }}
               src={`https://github.com/${username}.png`}
             />
-            <Text
+
+            <Box styleSheet={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: '5px',
+
+            }}>
+              {username &&
+                <Text
+                  variant="body4"
+                  styleSheet={{
+                    color: appConfig.theme.colors.neutrals[200],
+                    backgroundColor: appConfig.theme.colors.primary[600],
+                    padding: '4px 10px',
+                    marginBottom: '5px',
+                    marginRight: '5px',
+                    borderRadius: '1000px',
+                    fontSize: '13px', 
+                    textAlign:'center',
+                    
+                  }}
+                >
+                  {username}
+                </Text>}
+
+              {nameGit &&
+                <Text
+                  variant="body4"
+                  styleSheet={{
+                    color: appConfig.theme.colors.neutrals[200],
+                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                    padding: '4px 10px',
+                    marginBottom: '5px',
+                    borderRadius: '1000px',
+                    fontSize: '13px', 
+                    textAlign:'center'
+                  }}
+                >
+                  {nameGit}
+                </Text>}
+            </Box>
+
+            <Box styleSheet={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: '5px',
+
+            }}>
+              {repoGit>=0 &&
+                <Text
+                  variant="body4"
+                  styleSheet={{
+                    color: appConfig.theme.colors.neutrals[200],
+                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                    padding: '4px 11px',
+                    borderRadius: '1000px', 
+                    textAlign:'center'
+                  }}
+                >
+                  <b>{repoGit}</b> repo
+                </Text>}
+
+              {followersGit>=0 &&
+                <Text
+                  variant="body4"
+                  styleSheet={{
+                    color: appConfig.theme.colors.neutrals[200],
+                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                    padding: '4px 11px',
+                    borderRadius: '1000px',
+                    marginLeft: '4px',
+                    marginRight: '4px',
+                    textAlign:'center'
+                  }}
+                >
+                  <b>{followersGit}</b> followers
+                </Text>}
+
+              {followingGit>=0 &&
+                <Text
+                  variant="body4"
+                  styleSheet={{
+                    color: appConfig.theme.colors.neutrals[200],
+                    backgroundColor: appConfig.theme.colors.neutrals[900],
+                    padding: '4px 11px',
+                    borderRadius: '1000px', 
+                    textAlign:'center'
+                  }}
+                >
+                  <b>{followingGit}</b> following
+                </Text>}
+
+            </Box>
+
+            {!username &&
+              <Text
+                variant="body4"
+                styleSheet={{
+                  color: appConfig.theme.colors.neutrals[200],
+                  //  backgroundColor: appConfig.theme.colors.neutrals[900],
+                  padding: '3px 10px',
+                  //  borderRadius: '1000px',
+                  textAlign: "center"
+                }}
+              >
+                Digite um nome de usuário
+              </Text>
+            }
+
+              {userNotFound && username.length>0 &&
+              <Text
               variant="body4"
               styleSheet={{
                 color: appConfig.theme.colors.neutrals[200],
-                backgroundColor: appConfig.theme.colors.neutrals[900],
+                //  backgroundColor: appConfig.theme.colors.neutrals[900],
                 padding: '3px 10px',
-                borderRadius: '1000px'
+                //  borderRadius: '1000px',
+                textAlign: "center"
               }}
             >
-              {username}
+              Usuário não encontrado!
             </Text>
+              }
+
+
+            {bioGit &&
+              <Text
+                variant="body4"
+                styleSheet={{
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[900],
+                  padding: '5px 12px',
+                  borderRadius: '15px'
+                }}
+              >
+                {bioGit}
+
+              </Text>
+            }
           </Box>
           {/* Photo Area */}
         </Box>

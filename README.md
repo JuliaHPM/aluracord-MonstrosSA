@@ -18,7 +18,8 @@ Criamos o layout de uma página inicial utilizando componentes do React e o skyn
 Desafio: estilizar a sua maneira.
 
 ## Aula 2 - 25/01
-Tópicos: useState, useRouter e eventos (onChange e onSubmit). 
+Tópicos: useState, useRouter e eventos (onChange e onSubmit).
+
 Desafios: puxar mais dados do GitHub ✅ e deixar o botão de enviar desabilitado se não encontrar o nome de usuário.
 
 ![Image](./img/TelaInicio2.png)
@@ -26,14 +27,19 @@ Desafios: puxar mais dados do GitHub ✅ e deixar o botão de enviar desabilitad
 ## Aula 3 - 26/01
 Utilizamos arrays, objetos e map para criar o chat offline.
 
-![Image](./img/TelaChat.png)
+![Image](./img/TelaChat2.png)
 
 Desafios: inserir botão de enviar e de excluir mensagem. ✅
 
 ## Aula 4 - 27/01
-Integração com o Supabase como backend e 
+Integração com o Supabase como backend, utilização do useEffect. 
 
 Desafios: adicionar loading enquanto carrega as mensagens, mouse over para abrir profile do github e outos botões para mandar imagens e outros.
+
+## Aula 5 - 28/01
+Integração de Stickers no chat e chat 'em tempo real'.
+
+![Image](./img/TelaChat3.png)
 
 #### Run
 ```sh

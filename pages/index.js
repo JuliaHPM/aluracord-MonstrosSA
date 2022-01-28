@@ -97,7 +97,7 @@ export default function PaginaInicial() {
             }}
             onSubmit={function (event) {
               event.preventDefault();
-              router.push("/chat");
+              router.push(`/chat?username=${username}`);
             }}
           >
             <Titulo tag="h2">Olá monstro!</Titulo>

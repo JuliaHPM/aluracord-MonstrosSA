@@ -2,14 +2,34 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React, { useEffect, useState } from 'react';
 import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwODUxNiwiZXhwIjoxOTU4ODg0NTE2fQ.3tTR-qYcgg0A9UdNdhfLJYCooEGAP4xoY2QLKgsFGXE";
 const SUPABASE_URL = "https://drhdbangmldvugyamovy.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+        .from('mensagens')
+        .on('INSERT', (resposta) => {
+            // console.log("nova msg")
+            adicionaMensagem(resposta.new);
+        })
+        .subscribe();
+}
+
 export default function ChatPage() {
     const [mensagem, setMensagem] = useState();
-    const [listaMensagens, setListaMensagens] = useState([]);
+    const [listaMensagens, setListaMensagens] = useState([
+        // {
+        //     id: 1,
+        //     de: 'omariosouto',
+        //     texto: ':sticker:https://c.tenor.com/bsOwDEeWiuEAAAAM/pixar-monsters.gif'
+        // }
+    ]);
+    const router = useRouter();
+    const usuarioLogado = router.query.username;
 
     useEffect(() => {
         supabaseClient
@@ -20,26 +40,39 @@ export default function ChatPage() {
                 // console.log('dados: ', data);
                 setListaMensagens(data)
             });
+
+         escutaMensagensEmTempoReal((novaMensagem) => {
+            console.log('novaMensagem: ', novaMensagem);
+            //se quiser reusar um valor de referência 
+            // (objeto/array) chamar função no setState
+         
+            setListaMensagens((valorAtualDaLista) => {
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista
+                ]
+            });
+        });
+
     }, []);
 
-    function handleNovaMensagem(novaMensagem) {
+    function handleNovaMensagem(novaMensagem) { //aqui cria a mensagem no banco
+        // console.log(novaMensagem);
         const mensagem = {
             // id: listaMensagens.length + 1,
-            de: 'juliahpm', //vanessametonini //usuário logado
+            de: usuarioLogado, //usuário logado
             texto: novaMensagem
         };
 
         supabaseClient
             .from('mensagens')
             .insert([
+                // Tem que ser um objeto com os MESMOS CAMPOS que você escreveu no supabase
                 mensagem
             ])
-            .then(({ data }) => {
-                setListaMensagens([
-                    data[0],
-                    ...listaMensagens
-                ]);
-            })
+        .then(({ data }) => {
+        console.log('Criando mensagem: ', data);
+        })
 
         setMensagem('');
     }
@@ -68,7 +101,7 @@ export default function ChatPage() {
                     padding: '32px',
                 }}
             >
-                <Header />
+                <Header usuarioLogado={usuarioLogado} />
                 <Box
                     styleSheet={{
                         position: 'relative',
@@ -125,6 +158,12 @@ export default function ChatPage() {
                                 }
                             }}
                         />
+
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                handleNovaMensagem(':sticker:' + sticker);
+                            }}
+                        />
                         <Button
                             title='Enviar'
                             iconName='FaPaperPlane'
@@ -135,7 +174,22 @@ export default function ChatPage() {
                                 mainColorStrong: appConfig.theme.colors.primary[600],
                             }}
                             styleSheet={{
-                                // height: '0%'
+                                borderRadius: '50%',
+                                // padding: '0 3px 0 0',
+                                minWidth: '50px',
+                                minHeight: '50px',
+                                fontSize: '20px',
+                                marginBottom: '8px',
+                                // marginRight: '4px',
+                                lineHeight: '0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: appConfig.theme.colors.primary[500],
+                                // filter: isOpen ? 'grayscale(0)' : 'grayscale(1)',
+                                hover: {
+                                    filter: 'grayscale(0)',
+                                }
                             }}
                             onClick={() => { handleNovaMensagem(mensagem) }}
                         />
@@ -146,19 +200,25 @@ export default function ChatPage() {
     )
 }
 
-function Header() {
+function Header({ usuarioLogado }) {
     return (
         <>
             <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
                 <Text variant='heading5'>
                     Chat
                 </Text>
-                <Button
-                    variant='tertiary'
-                    colorVariant='neutral'
-                    label='Logout'
-                    href="/"
-                />
+                <Box>
+                    <Text styleSheet={{ marginRight: '5px' }}>
+                        {usuarioLogado}
+                    </Text>
+                    <Button
+                        variant='tertiary'
+                        colorVariant='neutral'
+                        label='Logout'
+                        href="/"
+                    />
+                </Box>
+
             </Box>
         </>
     )
@@ -260,7 +320,14 @@ function MessageList({ mensagens, setListaMensagens }) { //props.mensagens
                                 />
                             </Box>
                         </Box>
-                        {mensagem.texto}
+                        {/* condicional terciario Stickers */}
+                        {mensagem.texto.startsWith(':sticker:') ? (
+                            <Image src={mensagem.texto.replace(':sticker:', '')} />
+                        ) : (
+                            mensagem.texto
+                        )}
+
+
                     </Text>
                 )
             })}
